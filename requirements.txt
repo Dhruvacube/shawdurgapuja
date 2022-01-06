@@ -7,7 +7,7 @@ bangla==0.0.2
 beautifulsoup4==4.10.0
 billiard==3.6.4.0
 Brotli==1.0.9
-celery==5.2.1
+celery==5.2.2
 certifi==2021.10.8
 chardet==4.0.0
 click==8.0.3
