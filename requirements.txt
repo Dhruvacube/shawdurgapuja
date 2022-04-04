@@ -39,7 +39,7 @@ kombu==5.2.3
 multidict==5.2.0
 packaging==21.3
 pdfkit==1.0.0
-Pillow==9.0.0
+Pillow==9.1.0
 prompt-toolkit==3.0.24
 psycopg2==2.9.3
 pyee==8.2.2
