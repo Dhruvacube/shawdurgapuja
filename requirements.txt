@@ -21,7 +21,7 @@ colorama==0.4.4
 colorlog==6.6.0
 Deprecated==1.2.13
 dj-database-url==0.5.0
-Django==4.0.2
+Django==4.0.6
 django-admin-list-filter-dropdown==1.0.3
 django-appconf==1.0.5
 django-colorfield==0.6.3
@@ -43,7 +43,7 @@ Pillow==9.0.0
 prompt-toolkit==3.0.24
 psycopg2==2.9.3
 pyee==8.2.2
-pyparsing==3.0.6
+pyparsing==3.0.9
 pypng==0.0.21
 pyppeteer==1.0.2
 PyQRCode==1.2.1
