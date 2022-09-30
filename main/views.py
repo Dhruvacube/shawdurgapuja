@@ -40,8 +40,11 @@ def user_logout(request):
 @cache_page(60 * 15)
 def changelang(request):
     old_lang = translation.to_locale(translation.get_language())
-    l = (request.META.get("HTTP_REFERER")
-         if request.META.get("HTTP_REFERER") else reverse("Home"))
+    l = (
+        request.META.get("HTTP_REFERER")
+        if request.META.get("HTTP_REFERER")
+        else reverse("Home")
+    )
     if old_lang == "en":
         translation.activate("bn")
         return redirect(l.replace("en", "bn"))
@@ -121,15 +124,15 @@ def schedulepdf(request, year):
 
     if sys.platform.startswith("win32"):
         if os.environ.get("ASYNC_RUN"):
-            return HttpResponse("This can run only in sync only mode! :)",
-                                status=503)
+            return HttpResponse("This can run only in sync only mode! :)", status=503)
         if os.path.isdir(os.path.join(settings.MEDIA_ROOT, "pdf")):
             pass
         else:
             os.mkdir(os.path.join(settings.MEDIA_ROOT, "pdf"))
         config = pdfkit.configuration(
-            wkhtmltopdf=settings.BASE_DIR /
-            os.path.join("wkhtmltopdf", "bin", "wkhtmltopdf.exe"))
+            wkhtmltopdf=settings.BASE_DIR
+            / os.path.join("wkhtmltopdf", "bin", "wkhtmltopdf.exe")
+        )
         pdfkit.from_url(
             f"http://{domain}{reverse('schedule print',args=[year])}",
             False,
@@ -137,13 +140,16 @@ def schedulepdf(request, year):
         )
 
         with open(
-                os.path.join(settings.MEDIA_ROOT, "pdf",
-                             f"schedulepdf-{year}.pdf"), "rb") as pdf_file:
+            os.path.join(settings.MEDIA_ROOT, "pdf",
+                         f"schedulepdf-{year}.pdf"), "rb"
+        ) as pdf_file:
             data = pdf_file.read()
         sync_to_async(
             os.remove(
                 os.path.join(settings.MEDIA_ROOT, "pdf",
-                             f"schedulepdf-{year}.pdf")))
+                             f"schedulepdf-{year}.pdf")
+            )
+        )
         filename = f"schedulepdf-{year}.pdf"
         content_type = "application/pdf"
 
@@ -156,14 +162,12 @@ def schedulepdf(request, year):
             f'https://image.thum.io/get/width/1920/crop/900/maxAge/1/noanimate/http://{domain+reverse("schedule img",args=[year, 1])}'
         ).read()
 
-        with open(settings.MEDIA_ROOT / f"schedulepdf-{year}.png",
-                  "wb") as img_file:
+        with open(settings.MEDIA_ROOT / f"schedulepdf-{year}.png", "wb") as img_file:
             img_file.write(img)
-        with open(settings.MEDIA_ROOT / f"schedulepdf-{year}.png",
-                  "rb") as img_file:
+        with open(settings.MEDIA_ROOT / f"schedulepdf-{year}.png", "rb") as img_file:
             data = img_file.read()
-        sync_to_async(
-            os.remove(settings.MEDIA_ROOT / f"schedulepdf-{year}.png"))
+        sync_to_async(os.remove(settings.MEDIA_ROOT /
+                      f"schedulepdf-{year}.png"))
 
         filename = f"schedulepdf-{year}.png"
         content_type = "image/png"
@@ -180,10 +184,16 @@ def home(request):
 
     name1 = "Videos List"
     year = Year.objects.all()
-    videos = (Videos.objects.filter(
-        test=False).select_related("yearmodel").distinct("yearmodel"))
-    videoslive = (Videos.objects.select_related("yearmodel").values(
-        "yearmodel", "live").filter(live=True, test=False))
+    videos = (
+        Videos.objects.filter(test=False)
+        .select_related("yearmodel")
+        .distinct("yearmodel")
+    )
+    videoslive = (
+        Videos.objects.select_related("yearmodel")
+        .values("yearmodel", "live")
+        .filter(live=True, test=False)
+    )
 
     page = request.GET.get("page", 1)
     paginator = Paginator(year, 6)
@@ -234,8 +244,11 @@ def video(request, year, day):
         dayname = "Dashami"
     elif day == "MAA":
         try:
-            maahome = (Year.objects.filter(
-                year=int(year)).values("maacomevid").get()["maacomevid"])
+            maahome = (
+                Year.objects.filter(year=int(year))
+                .values("maacomevid")
+                .get()["maacomevid"]
+            )
         except IndexError:
             return redirect(reverse("Videos", args=[int(year), "S"]))
         if not maahome:
@@ -244,9 +257,9 @@ def video(request, year, day):
         raise Http404("The day you requested in not available")
 
     if day == "MAA":
-        videos = Videos.objects.filter(yearmodel=yearid,
-                                       day__in=["E", "DI", "T", "C", "P"],
-                                       test=False).select_related("yearmodel")
+        videos = Videos.objects.filter(
+            yearmodel=yearid, day__in=["E", "DI", "T", "C", "P"], test=False
+        ).select_related("yearmodel")
         try:
             day = videos[0].day
         except IndexError:
@@ -262,18 +275,22 @@ def video(request, year, day):
         elif day == "P":
             dayname = "Panchami"
     else:
-        videos = Videos.objects.filter(yearmodel=yearid, day=day,
-                                       test=False).all()
+        videos = Videos.objects.filter(
+            yearmodel=yearid, day=day, test=False).all()
     show = not videos.count() <= 0
 
-    livevideo = (Videos.objects.filter(yearmodel=yearid, live=True,
-                                       test=False).values("day",
-                                                          "live").exists())
+    livevideo = (
+        Videos.objects.filter(yearmodel=yearid, live=True, test=False)
+        .values("day", "live")
+        .exists()
+    )
     if not livevideo:
         livevideo = Videos.objects.none()
 
-    maahome = (Year.objects.filter(
-        year=int(year)).values("maacomevid").get()["maacomevid"])
+    maahome = (
+        Year.objects.filter(year=int(year)).values(
+            "maacomevid").get()["maacomevid"]
+    )
 
     return render(
         request,
@@ -336,22 +353,26 @@ def redirect_view_puja(request):
 
     # Day requiring
     try:
-        videodict = (Videos.objects.filter(
-            yearmodel=yearid, live=True,
-            test=False).select_related("yearmodel").values("day").get())
+        videodict = (
+            Videos.objects.filter(yearmodel=yearid, live=True, test=False)
+            .select_related("yearmodel")
+            .values("day")
+            .get()
+        )
     except:
         videodict = {"day": "None"}
         try:
-            videodict = (Videos.objects.filter(
-                yearmodel=yearid,
-                test=False).select_related("yearmodel").values("day").latest(
-                    "yearmodel", "day"))
+            videodict = (
+                Videos.objects.filter(yearmodel=yearid, test=False)
+                .select_related("yearmodel")
+                .values("day")
+                .latest("yearmodel", "day")
+            )
         except Exception as e:
             return redirect(reverse("Home"))
 
     # redirecting the user to the correct page
-    return redirect(
-        reverse("Videos", args=[int(year), videodict["day"]]) + "#live")
+    return redirect(reverse("Videos", args=[int(year), videodict["day"]]) + "#live")
 
 
 @sync_to_async
@@ -362,8 +383,7 @@ def qrcode(request, logo=2):
     current_site = get_current_site(request)
     domain = current_site.domain
     return HttpResponse(
-        QrGen("https://" + domain + reverse("Redirect"),
-              logo == 1).gen_qr_code(),
+        QrGen("https://" + domain + reverse("Redirect"), logo == 1).gen_qr_code(),
         content_type="image/jpeg",
     )
 
@@ -395,11 +415,11 @@ def handler500(request, *args, **argv):
         path=settings.SENTRY_URL,
         method="post",
         data={
-            "content":
-            "<@887549958931247137>",
+            "content": "<@887549958931247137>",
             "embeds": [embed.to_dict()],
-            "allowed_mentions":
-            AllowedMentions(everyone=True, roles=True, users=True).to_dict(),
+            "allowed_mentions": AllowedMentions(
+                everyone=True, roles=True, users=True
+            ).to_dict(),
         },
     )
     x = datetime.datetime.now()
@@ -417,8 +437,7 @@ def handler500(request, *args, **argv):
 
 @lru_cache
 def durgapujayear():
-    return relativedelta(datetime.datetime.now(),
-                         datetime.datetime(2001, 1, 1)).years
+    return relativedelta(datetime.datetime.now(), datetime.datetime(2001, 1, 1)).years
 
 
 @lru_cache
@@ -438,24 +457,25 @@ def generate_thumbnail(request_obj):
     w, h = d.textsize(str(text))
 
     if request.LANGUAGE_CODE == "bn" and text.replace("/", "").isdigit():
-        font = os.path.join(settings.BASE_DIR, "main", "static", "fonts",
-                            "Baloo_Da-Regular.ttf")
+        font = os.path.join(
+            settings.BASE_DIR, "main", "static", "fonts", "Baloo_Da-Regular.ttf"
+        )
         text = bangla.convert_english_digit_to_bangla_digit(str(text))
         d.text(
             ((100 - w) / 2, (25 - h) / 2),
             str(text),
             fill=str(textc),
-            font=ImageFont.truetype(font,
-                                    11,
-                                    layout_engine=ImageFont.LAYOUT_RAQM),
+            font=ImageFont.truetype(
+                font, 11, layout_engine=ImageFont.LAYOUT_RAQM),
         )
     else:
         d.text(((100 - w) / 2, (30 - h) / 2), str(text), fill=str(textc))
 
-    output_image = os.path.join(settings.MEDIA_ROOT, "yearpic",
-                                str(text) + "output" + ".png")
-    main_image = os.path.join(settings.MEDIA_ROOT, "yearpic",
-                              str(text) + ".png")
+    output_image = os.path.join(
+        settings.MEDIA_ROOT, "yearpic", str(text) + "output" + ".png"
+    )
+    main_image = os.path.join(
+        settings.MEDIA_ROOT, "yearpic", str(text) + ".png")
 
     # Try Except Block
     output_image1 = output_image
@@ -467,8 +487,8 @@ def generate_thumbnail(request_obj):
 
     # Making the image circular
     mask = Image.open(
-        os.path.join(settings.BASE_DIR, "main", "imagesreq",
-                     "mask.png")).convert("L")
+        os.path.join(settings.BASE_DIR, "main", "imagesreq", "mask.png")
+    ).convert("L")
     im = Image.open(output_image)
 
     output = ImageOps.fit(im, mask.size, centering=(0.5, 0.5))
@@ -489,7 +509,10 @@ def generate_thumbnail(request_obj):
 def serve_arc(request):
     return render(request, "arc-sw.js", content_type="application/javascript")
 
+
 @sync_to_async
 @cache_page(60 * 15)
 def serve_auth_dns(request):
-    return render(request, "3381C685CDBA944E82A7AE6F1444D4D2.txt", content_type="text/plain")
+    return render(
+        request, "3381C685CDBA944E82A7AE6F1444D4D2.txt", content_type="text/plain"
+    )
