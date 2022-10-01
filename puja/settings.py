@@ -15,7 +15,7 @@ from .django_logging import LOGGING
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_urlsafe(20)
+SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(20)
 
 if not os.path.exists(BASE_DIR / "logs"):
     os.makedirs(BASE_DIR / "logs")
