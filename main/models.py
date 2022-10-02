@@ -211,15 +211,17 @@ def get_default_year():
 
 def get_video_id(video_url: str) -> Union[str, None]:
     if "youtube.com/watch?v=" in video_url:
-        return urllib.parse.parse_qs(urllib.parse.urlparse(video_url).query)['v'][0]
+        return urllib.parse.parse_qs(
+            urllib.parse.urlparse(video_url).query)["v"][0]
     elif "youtu.be/" in video_url:
         return video_url.lstrip("/").split("/")[-1]
+
 
 def validate_url(value):
     if ("youtube.com", "youtu.be", "youtube", "youtu") in value:
         raise ValidationError(_("Please put a Facebook Url !"), )
     if ("facebook.com", "fb.watch") in value:
-         raise ValidationError(_("Please put a YouTube Url !"), )
+        raise ValidationError(_("Please put a YouTube Url !"), )
 
 
 class Videos(models.Model):
@@ -275,7 +277,8 @@ class Videos(models.Model):
                                             blank=True,
                                             max_length=600)
 
-    streamingvideolink = models.URLField(_("Live Video Link"), validators=[validate_url])
+    streamingvideolink = models.URLField(_("Live Video Link"),
+                                         validators=[validate_url])
     live = models.BooleanField(
         _("Live Video"),
         help_text=_("Check this only if the video is live"),
@@ -347,9 +350,12 @@ class Videos(models.Model):
                 path=webhook,
                 method="post",
                 data={
-                    "content": f"<@&{dict_roles[self.day]}>",
+                    "content":
+                    f"<@&{dict_roles[self.day]}>",
                     "embeds": [embed.to_dict()],
-                    "allowed_mentions": AllowedMentions(everyone=True, roles=True,users=True).to_dict(),
+                    "allowed_mentions":
+                    AllowedMentions(everyone=True, roles=True,
+                                    users=True).to_dict(),
                 },
             )
         return super().save(*args, **kwargs)
