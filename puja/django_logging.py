@@ -19,11 +19,7 @@ LOGGING = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
-    "filters": {
-        "autoreloadFilter": {
-            "()": AutoreloadLogFilter
-        }
-    },
+    "filters": {"autoreloadFilter": {"()": AutoreloadLogFilter}},
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",

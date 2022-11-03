@@ -25,25 +25,18 @@ class YearAdmin(admin.ModelAdmin):
         "navami",
         "dashami",
     )
-    list_filter = (("year", DropdownFilter), )
-    search_fields = list_display + ("yeardesc", )
+    list_filter = (("year", DropdownFilter),)
+    search_fields = list_display + ("yeardesc",)
     list_per_page = 30
 
     fieldsets = (
-        (_("Year"), {
-            "fields": ("year", )
-        }),
-        (_("Year Description"), {
-            "fields": ("yeardesc", )
-        }),
+        (_("Year"), {"fields": ("year",)}),
+        (_("Year Description"), {"fields": ("yeardesc",)}),
         (_("Pictures of Background"), {
-            "fields": ("colourback", "colourtext")
-        }),
+         "fields": ("colourback", "colourtext")}),
         (
             _("Live Video of Maa Durga coming from potuapara to Home"),
-            {
-                "fields": ("maacomevid", )
-            },
+            {"fields": ("maacomevid",)},
         ),
         (
             _("Puja Dates"),
@@ -95,11 +88,8 @@ class YearAdmin(admin.ModelAdmin):
             },
         ),
         (_("Maha Bhog Date and Time"), {
-            "fields": ("mahabhog", "mahabhogdttime")
-        }),
-        (_("Navami Puja Time"), {
-            "fields": ("navamit", "navamite")
-        }),
+         "fields": ("mahabhog", "mahabhogdttime")}),
+        (_("Navami Puja Time"), {"fields": ("navamit", "navamite")}),
         (
             _("Dashami Puja Time"),
             {
@@ -128,20 +118,14 @@ class VideosAdmin(admin.ModelAdmin):
         "live",
         "test",
     )
-    search_fields = list_display + list_filter + ("streamingvideolink", )
-    readonly_fields = ("video_posts", )
+    search_fields = list_display + list_filter + ("streamingvideolink",)
+    readonly_fields = ("video_posts",)
     list_per_page = 100
 
     fieldsets = (
-        (_("Year"), {
-            "fields": ("yearmodel", )
-        }),
-        (_("Day"), {
-            "fields": ("day", )
-        }),
-        (_("Test"), {
-            "fields": ("test", )
-        }),
+        (_("Year"), {"fields": ("yearmodel",)}),
+        (_("Day"), {"fields": ("day",)}),
+        (_("Test"), {"fields": ("test",)}),
         (
             _("Streaming Video Data"),
             {
@@ -158,7 +142,8 @@ class VideosAdmin(admin.ModelAdmin):
                 "fields": (
                     "streamingvideolink",
                     "live",
-                ) + readonly_fields
+                )
+                + readonly_fields
             },
         ),
     )
@@ -167,8 +152,8 @@ class VideosAdmin(admin.ModelAdmin):
     # live
     def make_videos_live(self, request, queryset):
         if len(queryset) > 1:
-            self.message_user(request, "Please select only one video",
-                              messages.ERROR)
+            self.message_user(
+                request, "Please select only one video", messages.ERROR)
         else:
             updated = queryset.update(live=True)
 
@@ -178,7 +163,8 @@ class VideosAdmin(admin.ModelAdmin):
                     "%d video was succesfully made live",
                     "%d videos were succesfully made live",
                     updated,
-                ) % updated,
+                )
+                % updated,
                 messages.SUCCESS,
             )
 
@@ -193,7 +179,8 @@ class VideosAdmin(admin.ModelAdmin):
                 "%d video was succesfully made offline",
                 "%d videos were succesfully made offline",
                 updated,
-            ) % updated,
+            )
+            % updated,
             messages.SUCCESS,
         )
 
@@ -208,7 +195,8 @@ class VideosAdmin(admin.ModelAdmin):
                 "%d video was succesfully made as a test video",
                 "%d videos were succesfully made as a test videos",
                 updated,
-            ) % updated,
+            )
+            % updated,
             messages.SUCCESS,
         )
 
@@ -223,12 +211,14 @@ class VideosAdmin(admin.ModelAdmin):
                 "%d video was succesfully removed from test video",
                 "%d videos were succesfully removed from test videos",
                 updated,
-            ) % updated,
+            )
+            % updated,
             messages.SUCCESS,
         )
 
     removefromtest.short_description = (
-        "Make the selected videos remove from test video(s)")
+        "Make the selected videos remove from test video(s)"
+    )
 
     # Registering the custom actions
     actions = [make_videos_live, make_videos_offline, maketest, removefromtest]
@@ -236,7 +226,6 @@ class VideosAdmin(admin.ModelAdmin):
 
 @admin.register(LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
-
     def delete_admin_logs(self, request, queryset):
         querysetmsg = queryset.delete()
 
@@ -246,12 +235,14 @@ class LogEntryAdmin(admin.ModelAdmin):
                 "%d log was successfully deleted.",
                 "%d logs were successfully deleted.",
                 len(queryset),
-            ) % int(len(queryset)),
+            )
+            % int(len(queryset)),
             messages.SUCCESS,
         )
 
     delete_admin_logs.short_description = (
-        "Delete the selected ADMIN Logs without sticking")
+        "Delete the selected ADMIN Logs without sticking"
+    )
 
     actions = [delete_admin_logs]
 

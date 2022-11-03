@@ -17,7 +17,8 @@ def main():
         raise ImportError(
             "Couldn't import Django. Are you sure it's installed and "
             "available on your PYTHONPATH environment variable? Did you "
-            "forget to activate a virtual environment?") from exc
+            "forget to activate a virtual environment?"
+        ) from exc
     if not os.path.isdir(os.path.join(Path(__file__).resolve().parent)):
         os.mkdir(os.path.join(Path(__file__).resolve().parent))
     os.environ["ASYNC_RUN"] = "False"
