@@ -181,7 +181,6 @@ def schedulepdf(request, year):
 @require_GET
 @sync_to_async
 def home(request):
-
     name1 = "Videos List"
     year = Year.objects.all()
     videos = (
