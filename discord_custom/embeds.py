@@ -16,7 +16,7 @@ from typing import (
 
 from .color import Colour
 
-__all__ = ("Embed", )
+__all__ = ("Embed",)
 
 
 def parse_time(timestamp: Optional[str]) -> Optional[datetime.datetime]:
@@ -47,8 +47,9 @@ class EmbedProxy:
         return len(self.__dict__)
 
     def __repr__(self) -> str:
-        inner = ", ".join((f"{k}={v!r}" for k, v in self.__dict__.items()
-                           if not k.startswith("_")))
+        inner = ", ".join(
+            (f"{k}={v!r}" for k, v in self.__dict__.items() if not k.startswith("_"))
+        )
         return f"EmbedProxy({inner})"
 
     def __getattr__(self, attr: str) -> _EmptyEmbed:
@@ -233,13 +234,13 @@ class Embed:
             pass
 
         for attr in (
-                "thumbnail",
-                "video",
-                "provider",
-                "author",
-                "fields",
-                "image",
-                "footer",
+            "thumbnail",
+            "video",
+            "provider",
+            "author",
+            "fields",
+            "image",
+            "footer",
         ):
             try:
                 value = data[attr]
@@ -276,20 +277,22 @@ class Embed:
         return total
 
     def __bool__(self) -> bool:
-        return any((
-            self.title,
-            self.url,
-            self.description,
-            self.colour,
-            self.fields,
-            self.timestamp,
-            self.author,
-            self.thumbnail,
-            self.footer,
-            self.image,
-            self.provider,
-            self.video,
-        ))
+        return any(
+            (
+                self.title,
+                self.url,
+                self.description,
+                self.colour,
+                self.fields,
+                self.timestamp,
+                self.author,
+                self.thumbnail,
+                self.footer,
+                self.image,
+                self.provider,
+                self.video,
+            )
+        )
 
     @property
     def colour(self) -> MaybeEmpty[Colour]:
@@ -501,8 +504,7 @@ class Embed:
         See :meth:`add_field` for possible values you can access.
         If the attribute has no value then :attr:`Empty` is returned.
         """
-        return [EmbedProxy(d)
-                for d in getattr(self, "_fields", [])]  # type: ignore
+        return [EmbedProxy(d) for d in getattr(self, "_fields", [])]  # type: ignore
 
     def add_field(self: E, *, name: Any, value: Any, inline: bool = True) -> E:
         """Adds a field to the embed object.
@@ -530,12 +532,9 @@ class Embed:
 
         return self
 
-    def insert_field_at(self: E,
-                        index: int,
-                        *,
-                        name: Any,
-                        value: Any,
-                        inline: bool = True) -> E:
+    def insert_field_at(
+        self: E, index: int, *, name: Any, value: Any, inline: bool = True
+    ) -> E:
         """Inserts a field before a specified index to the embed.
         This function returns the class instance to allow for fluent-style
         chaining.
@@ -588,12 +587,9 @@ class Embed:
         except (AttributeError, IndexError):
             pass
 
-    def set_field_at(self: E,
-                     index: int,
-                     *,
-                     name: Any,
-                     value: Any,
-                     inline: bool = True) -> E:
+    def set_field_at(
+        self: E, index: int, *, name: Any, value: Any, inline: bool = True
+    ) -> E:
         """Modifies a field to the embed object.
         The index must point to a valid pre-existing field.
         This function returns the class instance to allow for fluent-style
@@ -651,10 +647,12 @@ class Embed:
             if timestamp:
                 if timestamp.tzinfo:
                     result["timestamp"] = timestamp.astimezone(
-                        tz=datetime.timezone.utc).isoformat()
+                        tz=datetime.timezone.utc
+                    ).isoformat()
                 else:
                     result["timestamp"] = timestamp.replace(
-                        tzinfo=datetime.timezone.utc).isoformat()
+                        tzinfo=datetime.timezone.utc
+                    ).isoformat()
 
         # add in the non raw attribute ones
         if self.type:

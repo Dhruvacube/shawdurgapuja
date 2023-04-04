@@ -18,13 +18,13 @@ class YearFeed(Feed):
 
     @staticmethod
     def description(obj):
-        return obj[
-            0].yeardesc or f"See all the puja videos of the YEAR {obj[0].year}"
+        return obj[0].yeardesc or f"See all the puja videos of the YEAR {obj[0].year}"
 
     @staticmethod
     def items(obj):
-        return Videos.objects.filter(yearmodel=obj[0].id,
-                                     test=False).order_by("-yearmodel")
+        return Videos.objects.filter(yearmodel=obj[0].id, test=False).order_by(
+            "-yearmodel"
+        )
 
     @staticmethod
     def item_copyright():
