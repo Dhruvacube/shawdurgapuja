@@ -1,4 +1,4 @@
-﻿aiohttp==3.8.3
+aiohttp==3.8.3
 aiosignal==1.2.0
 amqp==5.1.1
 appdirs==1.4.4
@@ -39,7 +39,7 @@ kombu==5.2.4
 multidict==6.0.2
 packaging==21.3
 pdfkit==1.0.0
-Pillow==9.2.0
+Pillow==9.5.0
 prompt-toolkit==3.0.31
 psycopg2==2.9.4
 pyee==8.2.2
