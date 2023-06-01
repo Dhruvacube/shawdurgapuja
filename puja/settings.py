@@ -1,13 +1,15 @@
 import configparser
 import os
-import sentry_sdk
 import secrets
 from pathlib import Path
 from typing import Any
+
+import sentry_sdk
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
-from django.conf import settings
+
 
 class _MissingSentinel:
     __slots__ = ()
@@ -38,7 +40,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 CONFIG_FILE = BASE_DIR / ".conf"
 
-def token_get(tokenname: str = MISSING, value_not_found: str = MISSING, all: bool = False) -> Any:
+
+def token_get(tokenname: str = MISSING,
+              value_not_found: str = MISSING,
+              all: bool = False) -> Any:
     """Helper function to get the credentials from the environment variables or from the configuration file
     :param tokenname: The token name to access
     :type tokenname: str
@@ -65,6 +70,7 @@ def token_get(tokenname: str = MISSING, value_not_found: str = MISSING, all: boo
         return config._sections
     raise RuntimeError("Could not find .ini file")
 
+
 class _envConfig:
     """A class which contains all token configuration"""
 
@@ -78,7 +84,7 @@ class _envConfig:
 
 envConfig: Any = _envConfig()
 
-SECRET_KEY = getattr(envConfig, 'SECRET_KEY', secrets.token_urlsafe(25))
+SECRET_KEY = getattr(envConfig, "SECRET_KEY", secrets.token_urlsafe(25))
 
 SENTRY_URL = getattr(envConfig, "SENTRY_URL")
 sentry_sdk.init(
@@ -146,45 +152,41 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "puja.wsgi.application"
 
-ALLOWED_HOSTS=['*']
+ALLOWED_HOSTS = ["*"]
 
-DEBUG=bool(int(getattr(envConfig, "DEBUG", 0)))
+DEBUG = bool(int(getattr(envConfig, "DEBUG", 0)))
 if not DEBUG:
-    MIDDLEWARE = (
-        [MIDDLEWARE[0]]
-        + ["whitenoise.middleware.WhiteNoiseMiddleware"]
-        + MIDDLEWARE[1:]
-    )
-    INSTALLED_APPS = (
-        INSTALLED_APPS[0:-1] +
-        ["whitenoise.runserver_nostatic"] + [INSTALLED_APPS[-1]]
-    )
+    MIDDLEWARE = ([MIDDLEWARE[0]] +
+                  ["whitenoise.middleware.WhiteNoiseMiddleware"] +
+                  MIDDLEWARE[1:])
+    INSTALLED_APPS = (INSTALLED_APPS[0:-1] +
+                      ["whitenoise.runserver_nostatic"] + [INSTALLED_APPS[-1]])
 elif bool(int(getattr(envConfig, "WHITENOISE", 1))):
-    MIDDLEWARE = (
-        [MIDDLEWARE[0]]
-        + ["whitenoise.middleware.WhiteNoiseMiddleware"]
-        + MIDDLEWARE[1:]
-    )
-    INSTALLED_APPS = (
-        INSTALLED_APPS[0:-1] +
-        ["whitenoise.runserver_nostatic"] + [INSTALLED_APPS[-1]]
-    )
+    MIDDLEWARE = ([MIDDLEWARE[0]] +
+                  ["whitenoise.middleware.WhiteNoiseMiddleware"] +
+                  MIDDLEWARE[1:])
+    INSTALLED_APPS = (INSTALLED_APPS[0:-1] +
+                      ["whitenoise.runserver_nostatic"] + [INSTALLED_APPS[-1]])
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -227,7 +229,7 @@ WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 # # Deployment check
-if bool(int(getattr(envConfig, 'PRODUCTION_SERVER', 0))):
+if bool(int(getattr(envConfig, "PRODUCTION_SERVER", 0))):
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -239,9 +241,8 @@ if bool(int(getattr(envConfig, 'PRODUCTION_SERVER', 0))):
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": getattr(envConfig, 
-            "REDIS_URL", "redis://127.0.0.1:6379"
-        ),  # expected port, otherwise you can alter it
+        "LOCATION": getattr(envConfig, "REDIS_URL", "redis://127.0.0.1:6379"
+                            ),  # expected port, otherwise you can alter it
     }
 }
 
@@ -250,7 +251,7 @@ LANGUAGES = (
     ("en", _("English")),
 )
 
-LOCALE_PATHS = (BASE_DIR/"locale",)
+LOCALE_PATHS = (BASE_DIR / "locale", )
 
 HOMECOMING = getattr(envConfig, "HOMECOMING")
 SHASHTI = getattr(envConfig, "SHASHTI")
@@ -285,8 +286,7 @@ SESSION_COOKIE_AGE = 1 * 60 * 60
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
-if bool(int(getattr(envConfig, 'LOGGING', 0))):
+if bool(int(getattr(envConfig, "LOGGING", 0))):
     from .django_logging import LOGGING
 
 if getattr(envConfig, "DATABASE_URL")[0] == "m":
@@ -294,16 +294,17 @@ if getattr(envConfig, "DATABASE_URL")[0] == "m":
         "init_command": "SET default_storage_engine=InnoDB",
     }
 
-if bool(int(token_get('POSTGRES'))) and token_get('DATABASE_URL'):
+if bool(int(token_get("POSTGRES"))) and token_get("DATABASE_URL"):
     import dj_database_url
+
     DATABASES = {
         "default": dj_database_url.config(default=token_get("DATABASE_URL"))
     }
 
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
