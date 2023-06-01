@@ -17,8 +17,6 @@ sitemaps = {"static": StaticViewSitemap}
 register_converter(converters.FourDigitYearConverter, "yyyy")
 
 urlpatterns = [
-    # path(".well-known/pki-validation/3381C685CDBA944E82A7AE6F1444D4D2.txt", serve_auth_dns, name="Verify SSL Records"),
-    path("arc-sw.js", serve_arc, name="Arc.io serve js"),
     path("admin/doc/", include("django.contrib.admindocs.urls")),
     path("admin/", admin.site.urls),
     re_path(r"^logout/$", user_logout, name="signout"),

@@ -1,52 +1,88 @@
-import ast
+import configparser
 import os
+import sentry_sdk
 import secrets
 from pathlib import Path
-
-import dj_database_url
-import dotenv
-import sentry_sdk
+from typing import Any
 from django.utils.translation import gettext_lazy as _
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
-# from .django_logging import LOGGING
+class _MissingSentinel:
+    __slots__ = ()
+
+    def __eq__(self, other):
+        return False
+
+    def __bool__(self):
+        return False
+
+    def __hash__(self):
+        return 0
+
+    def __repr__(self):
+        return "..."
+
+    def __iter__(self):
+        return iter([])
+
+    def __len__(self):
+        return 0
+
+
+MISSING: Any = _MissingSentinel()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(20)
+CONFIG_FILE = BASE_DIR / ".conf"
 
-if not os.path.exists(BASE_DIR / "logs"):
-    os.makedirs(BASE_DIR / "logs")
+def token_get(tokenname: str = MISSING, value_not_found: str = MISSING, all: bool = False) -> Any:
+    """Helper function to get the credentials from the environment variables or from the configuration file
+    :param tokenname: The token name to access
+    :type tokenname: str
+    :param all: Return all values from config filename, defaults to False
+    :type all: bool, optional
+    :raises RuntimeError: When all set :bool:`True` and `.ini` file is not found
+    :return: The environment variables data requested if not found then None is returned
+    :rtype: Any
+    """
+    if not all:
+        if CONFIG_FILE.is_file():
+            config = configparser.ConfigParser()
+            config.read(CONFIG_FILE)
+            sections = config._sections
+            for i in sections:
+                for j in sections[i]:
+                    if j.lower() == tokenname.lower():
+                        return sections[i][j]
+            return value_not_found
+        return os.environ.get(tokenname, "False").strip("\n")
+    if CONFIG_FILE.is_file():
+        config = configparser.ConfigParser()
+        config.read(CONFIG_FILE)
+        return config._sections
+    raise RuntimeError("Could not find .ini file")
 
-dotenv_file = BASE_DIR / ".env"
-ENV_EXISTS = os.path.isfile(dotenv_file)
-if ENV_EXISTS:
+class _envConfig:
+    """A class which contains all token configuration"""
 
-    dotenv.load_dotenv(dotenv_file)
+    def __init__(self):
+        self.data: dict = token_get(all=True)
+        for i in self.data:
+            for j in self.data.get(i, MISSING):
+                setattr(self, j.lower().strip("\n"), self.data[i].get(j))
+                setattr(self, j.upper().strip("\n"), self.data[i].get(j))
 
-    if not os.path.exists(BASE_DIR / "media"):
-        os.makedirs(BASE_DIR / "media")
 
-    PRODUCTION_SERVER = False
-    ALLOWED_HOSTS = ["*"]
-    DATABASES = {"default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL"))}
+envConfig: Any = _envConfig()
 
-else:
-    PRODUCTION_SERVER = True
+SECRET_KEY = getattr(envConfig, 'SECRET_KEY', secrets.token_urlsafe(25))
 
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-    DATABASES = {"default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL"))}
-    ALLOWED_HOSTS = ["*"]
-
-SENTRY_URL = os.environ["SENTRY_URL"]
+SENTRY_URL = getattr(envConfig, "SENTRY_URL")
 
 sentry_sdk.init(
-    dsn=os.environ["SENTRY_DSN"],
+    dsn=getattr(envConfig, "SENTRY_DSN"),
     integrations=[DjangoIntegration(), RedisIntegration()],
     traces_sample_rate=1.0,
     send_default_pii=True,
@@ -112,9 +148,7 @@ WSGI_APPLICATION = "puja.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DEBUG = ast.literal_eval(os.environ.get(
-    "DEBUG", "False").strip("\n").capitalize())
-if not DEBUG:
+if not bool(int(getattr(envConfig, "DEBUG", 0))):
     MIDDLEWARE = (
         [MIDDLEWARE[0]]
         + ["whitenoise.middleware.WhiteNoiseMiddleware"]
@@ -124,7 +158,7 @@ if not DEBUG:
         INSTALLED_APPS[0:-1] +
         ["whitenoise.runserver_nostatic"] + [INSTALLED_APPS[-1]]
     )
-elif ast.literal_eval(os.environ.get("WHITENOISE", "True").strip("\n").capitalize()):
+elif bool(int(getattr(envConfig, "WHITENOISE", 1))):
     MIDDLEWARE = (
         [MIDDLEWARE[0]]
         + ["whitenoise.middleware.WhiteNoiseMiddleware"]
@@ -168,8 +202,7 @@ USE_I18N = True
 
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
-CELERY_RESULT_BACKEND = os.environ.get("CLOUDAMQP_URL", "amqp://localhost")
+BROKER_URL = getattr(envConfig, "REDIS_URL", "redis://localhost:6379")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -190,13 +223,10 @@ MEDIA_URL = "/media/"
 WHITENOISE_MAX_AGE = 9000
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []
 
-if os.path.isdir(MEDIA_ROOT):
-    pass
-else:
-    os.mkdir(MEDIA_ROOT)
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 # # Deployment check
-if PRODUCTION_SERVER:
+if bool(int(getattr(envConfig, 'PRODUCTION_SERVER', 0))):
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -208,32 +238,27 @@ if PRODUCTION_SERVER:
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.environ.get(
+        "LOCATION": getattr(envConfig, 
             "REDIS_URL", "redis://127.0.0.1:6379"
         ),  # expected port, otherwise you can alter it
     }
 }
-
-if os.getenv("DATABASE_URL")[0] == "m":
-    DATABASES["default"]["OPTIONS"] = {
-        "init_command": "SET default_storage_engine=InnoDB",
-    }
 
 LANGUAGES = (
     ("bn", _("Bengali")),
     ("en", _("English")),
 )
 
-LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
+LOCALE_PATHS = (BASE_DIR/"locale",)
 
-HOMECOMING = os.environ.get("HOMECOMING")
-SHASHTI = os.environ.get("SHASHTI")
-SAPTAMI = os.environ.get("SAPTAMI")
-ASHTAMI = os.environ.get("ASHTAMI")
-NAVAMI = os.environ.get("NAVAMI")
-DASHAMI = os.environ.get("DASHAMI")
-TEST = os.environ.get("TEST")
-TOKEN = os.environ.get("TOKEN")
+HOMECOMING = getattr(envConfig, "HOMECOMING")
+SHASHTI = getattr(envConfig, "SHASHTI")
+SAPTAMI = getattr(envConfig, "SAPTAMI")
+ASHTAMI = getattr(envConfig, "ASHTAMI")
+NAVAMI = getattr(envConfig, "NAVAMI")
+DASHAMI = getattr(envConfig, "DASHAMI")
+TEST = getattr(envConfig, "TEST")
+TOKEN = getattr(envConfig, "TOKEN")
 
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
@@ -258,4 +283,7 @@ DJANGO_ALLOW_ASYNC_UNSAFE = True
 SESSION_COOKIE_AGE = 1 * 60 * 60
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# LOGGING = LOGGING
+
+
+if bool(int(getattr(envConfig, 'LOGGING', 0))):
+    from .django_logging import LOGGING
