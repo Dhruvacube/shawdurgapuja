@@ -27,26 +27,23 @@ urlpatterns = [
     path("", homeredirect, name="HomeRedirect"),
 ]
 
-urlpatterns = (
-    i18n_patterns(
-        path(_(""), home, name="Home"),
-        path(_("videos/<yyyy:year>/<str:day>"), video, name="Videos"),
-        path(_("aboutyear/<yyyy:year>"), about_year, name="About Year"),
-        path(_("schedule/<yyyy:year>/"), schedule, name="schedule"),
-        path(_("scheduleprint/<yyyy:year>/"),
-             scheduleprint, name="schedule print"),
-        path(
-            _("scheduleimg/<yyyy:year>/<int:one>"), scheduleprint, name="schedule img"
-        ),
-        path(_("schedulepdf/<yyyy:year>/"), schedulepdf, name="schedule pdf"),
-        re_path(_(r"^rss/latest$"), YearFeed(), name="RSS"),
-        path(_("redirect/"), redirect_view_puja, name="Redirect"),
-        re_path(_(r"^getimages$"), getimages, name="GetImages"),
-        path(_("changelang/"), changelang, name="ChangeLang"),
-    )
-    + urlpatterns
-    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-)
+urlpatterns = (i18n_patterns(
+    path(_(""), home, name="Home"),
+    path(_("videos/<yyyy:year>/<str:day>"), video, name="Videos"),
+    path(_("aboutyear/<yyyy:year>"), about_year, name="About Year"),
+    path(_("schedule/<yyyy:year>/"), schedule, name="schedule"),
+    path(_("scheduleprint/<yyyy:year>/"), scheduleprint,
+         name="schedule print"),
+    path(_("scheduleimg/<yyyy:year>/<int:one>"),
+         scheduleprint,
+         name="schedule img"),
+    path(_("schedulepdf/<yyyy:year>/"), schedulepdf, name="schedule pdf"),
+    re_path(_(r"^rss/latest$"), YearFeed(), name="RSS"),
+    path(_("redirect/"), redirect_view_puja, name="Redirect"),
+    re_path(_(r"^getimages$"), getimages, name="GetImages"),
+    path(_("changelang/"), changelang, name="ChangeLang"),
+) + urlpatterns +
+    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
 
 handler404 = "main.views.handler404"
 handler500 = "main.views.handler500"
