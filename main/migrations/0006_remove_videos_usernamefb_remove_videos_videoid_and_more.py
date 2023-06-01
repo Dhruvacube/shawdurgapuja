@@ -4,23 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('main', '0005_alter_videos_streamingplatform'),
+        ("main", "0005_alter_videos_streamingplatform"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='videos',
-            name='usernamefb',
+            model_name="videos",
+            name="usernamefb",
         ),
         migrations.RemoveField(
-            model_name='videos',
-            name='videoid',
+            model_name="videos",
+            name="videoid",
         ),
         migrations.AlterField(
-            model_name='videos',
-            name='embeedlink',
-            field=models.URLField(blank=True, null=True, verbose_name='Embed Link of Posts or Video'),
+            model_name="videos",
+            name="embeedlink",
+            field=models.URLField(blank=True,
+                                  null=True,
+                                  verbose_name="Embed Link of Posts or Video"),
         ),
     ]
