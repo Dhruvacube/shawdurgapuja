@@ -7,6 +7,7 @@ from typing import Any
 from django.utils.translation import gettext_lazy as _
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
+from django.conf import settings
 
 class _MissingSentinel:
     __slots__ = ()
@@ -80,12 +81,12 @@ envConfig: Any = _envConfig()
 SECRET_KEY = getattr(envConfig, 'SECRET_KEY', secrets.token_urlsafe(25))
 
 SENTRY_URL = getattr(envConfig, "SENTRY_URL")
-
 sentry_sdk.init(
     dsn=getattr(envConfig, "SENTRY_DSN"),
     integrations=[DjangoIntegration(), RedisIntegration()],
     traces_sample_rate=1.0,
     send_default_pii=True,
+    profiles_sample_rate=1.0,
 )
 
 # Application definition
@@ -145,10 +146,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "puja.wsgi.application"
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+ALLOWED_HOSTS=['*']
 
-if not bool(int(getattr(envConfig, "DEBUG", 0))):
+DEBUG=bool(int(getattr(envConfig, "DEBUG", 0)))
+if not DEBUG:
     MIDDLEWARE = (
         [MIDDLEWARE[0]]
         + ["whitenoise.middleware.WhiteNoiseMiddleware"]
@@ -260,8 +261,8 @@ DASHAMI = getattr(envConfig, "DASHAMI")
 TEST = getattr(envConfig, "TEST")
 TOKEN = getattr(envConfig, "TOKEN")
 
-COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = True
+COMPRESS_ENABLED = getattr(envConfig, "COMPRESS_ENABLED")
+COMPRESS_OFFLINE = getattr(envConfig, "COMPRESS_OFFLINE")
 COMPRESS_PRECOMPILERS = (
     ("text/x-sass", "django_libsass.SassCompiler"),
     ("text/x-scss", "django_libsass.SassCompiler"),
@@ -287,3 +288,22 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if bool(int(getattr(envConfig, 'LOGGING', 0))):
     from .django_logging import LOGGING
+
+if getattr(envConfig, "DATABASE_URL")[0] == "m":
+    settings.DATABASES["default"]["OPTIONS"] = {
+        "init_command": "SET default_storage_engine=InnoDB",
+    }
+
+if bool(int(token_get('POSTGRES'))) and token_get('DATABASE_URL'):
+    import dj_database_url
+    DATABASES = {
+        "default": dj_database_url.config(default=token_get("DATABASE_URL"))
+    }
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
