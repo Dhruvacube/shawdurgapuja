@@ -31,7 +31,7 @@ class Colour:
         The raw integer colour value.
     """
 
-    __slots__ = ("value",)
+    __slots__ = ("value", )
 
     def __init__(self, value):
         if not isinstance(value, int):

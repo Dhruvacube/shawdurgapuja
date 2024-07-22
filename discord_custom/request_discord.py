@@ -19,7 +19,8 @@ def discord_api_req(
         "Content-Type": content_type,
     }
     req = request.Request(url=base_api + path,
-                          headers=headers, method=method.upper())
+                          headers=headers,
+                          method=method.upper())
     if data:
         data = json.dumps(data)
         data = data.encode()

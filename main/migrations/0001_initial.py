@@ -48,15 +48,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "colourtext",
-                    colorfield.fields.ColorField(
-                        default="#FFF00C", max_length=18, verbose_name="colourtext"
-                    ),
+                    colorfield.fields.ColorField(default="#FFF00C",
+                                                 max_length=18,
+                                                 verbose_name="colourtext"),
                 ),
                 (
                     "yeardesc",
-                    models.TextField(
-                        blank=True, null=True, verbose_name="About the year"
-                    ),
+                    models.TextField(blank=True,
+                                     null=True,
+                                     verbose_name="About the year"),
                 ),
                 (
                     "maacomevid",
@@ -68,75 +68,78 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "shashti",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Date of Shashti Puja"
-                    ),
+                    models.DateField(blank=True,
+                                     null=True,
+                                     verbose_name="Date of Shashti Puja"),
                 ),
                 (
                     "saptami",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Date of Saptami Puja"
-                    ),
+                    models.DateField(blank=True,
+                                     null=True,
+                                     verbose_name="Date of Saptami Puja"),
                 ),
                 (
                     "ashtami",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Date of Ashtami Puja"
-                    ),
+                    models.DateField(blank=True,
+                                     null=True,
+                                     verbose_name="Date of Ashtami Puja"),
                 ),
                 (
                     "sandhi",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Date of Sandhi Puja"
-                    ),
+                    models.DateField(blank=True,
+                                     null=True,
+                                     verbose_name="Date of Sandhi Puja"),
                 ),
                 (
                     "navami",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Date of Navami Puja"
-                    ),
+                    models.DateField(blank=True,
+                                     null=True,
+                                     verbose_name="Date of Navami Puja"),
                 ),
                 (
                     "dashami",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Date of Dashami Puja"
-                    ),
+                    models.DateField(blank=True,
+                                     null=True,
+                                     verbose_name="Date of Dashami Puja"),
                 ),
                 (
                     "shashtit",
                     models.TimeField(
-                        blank=True, null=True, verbose_name="Start Time of Shashti Puja"
-                    ),
+                        blank=True,
+                        null=True,
+                        verbose_name="Start Time of Shashti Puja"),
                 ),
                 (
                     "shashtite",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="End Time of Shashti Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="End Time of Shashti Puja"),
                 ),
                 (
                     "saptamit",
                     models.TimeField(
-                        blank=True, null=True, verbose_name="Start Time of Saptami Puja"
-                    ),
+                        blank=True,
+                        null=True,
+                        verbose_name="Start Time of Saptami Puja"),
                 ),
                 (
                     "saptamite",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="End Time of Saptami Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="End Time of Saptami Puja"),
                 ),
                 (
                     "ashtamit",
                     models.TimeField(
-                        blank=True, null=True, verbose_name="Start Time of Ashtami Puja"
-                    ),
+                        blank=True,
+                        null=True,
+                        verbose_name="Start Time of Ashtami Puja"),
                 ),
                 (
                     "ashtamite",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="End Time of Ashtami Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="End Time of Ashtami Puja"),
                 ),
                 (
                     "mahabhog",
@@ -157,43 +160,44 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sandhit",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="Start Time of Sandhi Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="Start Time of Sandhi Puja"),
                 ),
                 (
                     "sandhite",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="End Time of Sandhi Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="End Time of Sandhi Puja"),
                 ),
                 (
                     "navamit",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="Start Time of Navami Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="Start Time of Navami Puja"),
                 ),
                 (
                     "navamite",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="End Time of Navami Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="End Time of Navami Puja"),
                 ),
                 (
                     "dashamit",
                     models.TimeField(
-                        blank=True, null=True, verbose_name="Start Time of Dashami Puja"
-                    ),
+                        blank=True,
+                        null=True,
+                        verbose_name="Start Time of Dashami Puja"),
                 ),
                 (
                     "dashamite",
-                    models.TimeField(
-                        blank=True, null=True, verbose_name="End Time of Dashami Puja"
-                    ),
+                    models.TimeField(blank=True,
+                                     null=True,
+                                     verbose_name="End Time of Dashami Puja"),
                 ),
             ],
             options={
-                "ordering": ("-year",),
+                "ordering": ("-year", ),
             },
         ),
         migrations.CreateModel(
@@ -259,8 +263,8 @@ class Migration(migrations.Migration):
                         verbose_name="Live Streaming Video Header",
                     ),
                 ),
-                ("streamingvideolink", models.URLField(
-                    verbose_name="Live Video Link")),
+                ("streamingvideolink",
+                 models.URLField(verbose_name="Live Video Link")),
                 (
                     "live",
                     models.BooleanField(

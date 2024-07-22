@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 
 
 class _FakeBool:
+
     def __repr__(self):
         return "True"
 
@@ -107,7 +108,10 @@ class AllowedMentions:
 
         .. versionadded:: 1.5
         """
-        return cls(everyone=False, users=False, roles=False, replied_user=False)
+        return cls(everyone=False,
+                   users=False,
+                   roles=False,
+                   replied_user=False)
 
     def to_dict(self):
         parse = []
@@ -139,12 +143,12 @@ class AllowedMentions:
         everyone = self.everyone if other.everyone is default else other.everyone
         users = self.users if other.users is default else other.users
         roles = self.roles if other.roles is default else other.roles
-        replied_user = (
-            self.replied_user if other.replied_user is default else other.replied_user
-        )
-        return AllowedMentions(
-            everyone=everyone, roles=roles, users=users, replied_user=replied_user
-        )
+        replied_user = (self.replied_user if other.replied_user is default else
+                        other.replied_user)
+        return AllowedMentions(everyone=everyone,
+                               roles=roles,
+                               users=users,
+                               replied_user=replied_user)
 
     def __repr__(self) -> str:
         return (
