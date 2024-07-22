@@ -19,7 +19,7 @@ click-repl==0.2.0
 colorama==0.4.6
 colorlog==6.7.0
 dj-database-url==2.0.0
-Django==4.2.1
+Django==4.2.14
 django-admin-list-filter-dropdown==1.0.3
 django-appconf==1.0.5
 django-colorfield==0.8.0
