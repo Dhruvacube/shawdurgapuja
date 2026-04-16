@@ -201,7 +201,7 @@ USE_I18N = True
 
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BROKER_URL = getattr(envConfig, "REDIS_URL", "redis://localhost:6379")
+# CELERY_BROKER_URL = getattr(envConfig, "REDIS_URL", "redis://localhost:6379")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -234,13 +234,20 @@ if bool(int(getattr(envConfig, "PRODUCTION_SERVER", 0))):
     SECURE_HSTS_PRELOAD = True
     SECURE_REFERRER_POLICY = "same-origin"
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": getattr(envConfig, "REDIS_URL", "redis://127.0.0.1:6379"
-                            ),  # expected port, otherwise you can alter it
+if getattr(envConfig, "REDIS_URL", False):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": getattr(envConfig, "REDIS_URL", "redis://127.0.0.1:6379"),
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
+        }
+    }
 
 LANGUAGES = (
     ("bn", _("Bengali")),

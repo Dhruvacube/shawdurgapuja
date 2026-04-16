@@ -190,10 +190,16 @@ def get_default_year():
 
 
 def get_video_id(video_url: str) -> Union[str, None]:
-    if "youtube.com/watch?v=" in video_url:
-        return urllib.parse.parse_qs(urllib.parse.urlparse(video_url).query)["v"][0]
-    elif "youtu.be/" in video_url:
-        return video_url.lstrip("/").split("/")[-1]
+    parsed = urllib.parse.urlparse(video_url)
+    netloc = parsed.netloc.lower()
+    if "youtube.com" in netloc:
+        if parsed.path == "/watch":
+            return urllib.parse.parse_qs(parsed.query).get("v", [None])[0]
+        elif parsed.path.startswith(("/shorts/", "/live/", "/embed/")):
+            return parsed.path.split("/")[-1]
+    elif "youtu.be" in netloc:
+        return parsed.path.lstrip("/")
+    return None
 
 
 class Videos(models.Model):
@@ -294,30 +300,23 @@ class Videos(models.Model):
         return mark_safe("<h4>No FB/ Youtube Video for now</h4>")
 
     def save(self, *args, **kwargs):
-        if self.streamingplatform == "F" and (
-            "youtube.com" in self.streamingvideolink
-            or "youtu.be" in self.streamingvideolink
-            or "youtube" in self.streamingvideolink
-            or "youtu" in self.streamingvideolink
-        ):
+        link_lower = self.streamingvideolink.lower()
+        if self.streamingplatform == "F" and ("youtube.com" in link_lower or "youtu.be" in link_lower):
             raise ValidationError(
-                _("Please put a Facebook Url !"),
+                _("You selected Facebook as the platform, but provided a YouTube URL. Please provide a valid Facebook URL."),
             )
-        if self.streamingplatform == "Y" and (
-            "facebook.com" in self.streamingvideolink
-            or "fb.watch" in self.streamingvideolink
-        ):
+        if self.streamingplatform == "Y" and ("facebook.com" in link_lower or "fb.watch" in link_lower):
             raise ValidationError(
-                _("Please put a YouTube Url !"),
+                _("You selected YouTube as the platform, but provided a Facebook URL. Please provide a valid YouTube URL."),
             )
         self.streamingvideolink = self.streamingvideolink.rstrip("/")
         if self.streamingplatform == "F":
             self.embeedlink = f"https://www.facebook.com/plugins/video.php?height=504&href={urllib.parse.quote_plus(self.streamingvideolink)}&show_text=false&width=734&t=0"
         else:
-            self.embeedlink = (
-                "https://www.youtube.com/embed/"
-                + get_video_id(self.streamingvideolink).strip()
-            )
+            video_id = get_video_id(self.streamingvideolink)
+            if not video_id:
+                raise ValidationError(_("Could not extract a valid YouTube video ID from the provided URL."))
+            self.embeedlink = f"https://www.youtube.com/embed/{video_id.strip()}"
 
         if self.live:
             Videos.objects.update(live=False)
