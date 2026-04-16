@@ -186,7 +186,7 @@ class Year(models.Model):
 def get_default_year():
     from datetime import datetime
 
-    return Year.objects.get_or_create(year=int(datetime.now().strftime("%Y")))
+    return Year.objects.get_or_create(year=int(datetime.now().strftime("%Y")))[0]
 
 
 def get_video_id(video_url: str) -> Union[str, None]:

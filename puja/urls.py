@@ -8,7 +8,20 @@ from django.utils.translation import gettext_lazy as _
 
 from main import converters
 from main.rss_feed import YearFeed
-from main.views import *
+from main.views import (
+    about_year,
+    changelang,
+    getimages,
+    home,
+    homeredirect,
+    qrcode,
+    redirect_view_puja,
+    schedule,
+    schedulepdf,
+    scheduleprint,
+    user_logout,
+    video,
+)
 
 from .sitemaps import StaticViewSitemap
 

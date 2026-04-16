@@ -1,7 +1,6 @@
 import os
 
 import pyqrcode
-from asgiref.sync import sync_to_async
 from django.conf import settings
 from PIL import Image
 
@@ -43,6 +42,5 @@ class QrGen:
 
         with open(os.path.join(settings.BASE_DIR, "main", filename), "rb") as f:
             data = f.read()
-        sync_to_async(os.remove(os.path.join(
-            settings.BASE_DIR, "main", filename)))
+        os.remove(os.path.join(settings.BASE_DIR, "main", filename))
         return data

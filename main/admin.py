@@ -1,6 +1,7 @@
 from django.contrib import admin, messages
 from django.contrib.admin.models import LogEntry
-from django.contrib.auth.admin import Group
+from django.contrib.admin.exceptions import NotRegistered
+from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django_admin_listfilter_dropdown.filters import (
@@ -118,7 +119,13 @@ class VideosAdmin(admin.ModelAdmin):
         "live",
         "test",
     )
-    search_fields = list_display + list_filter + ("streamingvideolink",)
+    search_fields = (
+        "streamingvideoheader",
+        "streamingplatform",
+        "yearmodel__year",
+        "day",
+        "streamingvideolink",
+    )
     readonly_fields = ("video_posts",)
     list_per_page = 100
 
@@ -247,6 +254,9 @@ class LogEntryAdmin(admin.ModelAdmin):
     actions = [delete_admin_logs]
 
 
-admin.site.unregister(Group)
+try:
+    admin.site.unregister(Group)
+except NotRegistered:
+    pass
 
 admin.site.site_header = admin.site.site_title = "Shaw Durga Puja Live"

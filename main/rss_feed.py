@@ -10,18 +10,14 @@ class YearFeed(Feed):
     description = "Get the all the latest puja videos sorted Year-wise"
     link = reverse_lazy("Redirect")
 
-    def get_object(self, request, *args, **kwargs):
-        return Year.objects.all()
+    def items(self):
+        return Videos.objects.filter(test=False).select_related("yearmodel").order_by("-yearmodel__year", "-id")
 
-    def title(obj):
-        return f"YEAR - {obj.year}"
+    def item_title(self, item):
+        return f"YEAR - {item.yearmodel.year} - {item.streamingvideoheader}"
 
-    def description(obj):
-        return obj.yeardesc or f"See all the puja videos of the YEAR {obj.year}"
+    def item_description(self, item):
+        return item.streamingvideodescription or f"See the puja video of the YEAR {item.yearmodel.year}"
 
-    def items(obj):
-        return Videos.objects.filter(yearmodel=obj.id,
-                                     test=False).order_by("-yearmodel")
-
-    def item_copyright():
+    def item_copyright(self):
         return "Copyright (c) 2019, Shaw Durga Puja"

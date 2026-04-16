@@ -1,4 +1,5 @@
 import importlib
+import importlib.util
 import os
 
 from uvicorn.workers import UvicornWorker
@@ -16,6 +17,6 @@ class DynamicUvicornWorker(UvicornWorker):
     found = spam_spec is not None
     os.environ["ASYNC_RUN"] = "True"
     if found:
-        CONFIG_KWARGS = {"loop": "uvloop", "http": "auto", "lifespan": "off"}
+        CONFIG_KWARGS = {"http": "auto", "lifespan": "off"}
     else:
-        CONFIG_KWARGS = {"loop": "auto", "http": "auto", "lifespan": "off"}
+        CONFIG_KWARGS = {"http": "auto", "lifespan": "off"}

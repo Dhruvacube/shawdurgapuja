@@ -117,7 +117,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.gzip.GZipMiddleware",
-    "htmlmin.middleware.HtmlMinifyMiddleware",
+    "django_minify_html.middleware.MinifyHtmlMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.http.ConditionalGetMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -126,10 +126,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.contrib.admindocs.middleware.XViewMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.cache.FetchFromCacheMiddleware",
-    "htmlmin.middleware.MarkRequestMiddleware",
 ]
 
 ROOT_URLCONF = "puja.urls"
@@ -195,17 +193,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-CELERY_TIMEZONE = TIME_ZONE = "Asia/Calcutta"
+CELERY_TIMEZONE = TIME_ZONE = "Asia/Kolkata"
 
 USE_TZ = True
-
-USE_L10N = True
 
 USE_I18N = True
 
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-BROKER_URL = getattr(envConfig, "REDIS_URL", "redis://localhost:6379")
+CELERY_BROKER_URL = getattr(envConfig, "REDIS_URL", "redis://localhost:6379")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -264,10 +260,6 @@ TOKEN = getattr(envConfig, "TOKEN")
 
 COMPRESS_ENABLED = getattr(envConfig, "COMPRESS_ENABLED")
 COMPRESS_OFFLINE = getattr(envConfig, "COMPRESS_OFFLINE")
-COMPRESS_PRECOMPILERS = (
-    ("text/x-sass", "django_libsass.SassCompiler"),
-    ("text/x-scss", "django_libsass.SassCompiler"),
-)
 COMPRESS_CSS_HASHING_METHOD = "content"
 COMPRESS_FILTERS = {
     "css": [
@@ -278,8 +270,6 @@ COMPRESS_FILTERS = {
         "compressor.filters.jsmin.JSMinFilter",
     ],
 }
-HTML_MINIFY = True
-KEEP_COMMENTS_ON_MINIFYING = False
 DJANGO_ALLOW_ASYNC_UNSAFE = True
 
 SESSION_COOKIE_AGE = 1 * 60 * 60
@@ -288,11 +278,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if bool(int(getattr(envConfig, "LOGGING", 0))):
     from .django_logging import LOGGING
-
-if getattr(envConfig, "DATABASE_URL")[0] == "m":
-    settings.DATABASES["default"]["OPTIONS"] = {
-        "init_command": "SET default_storage_engine=InnoDB",
-    }
 
 if bool(int(token_get("POSTGRES"))) and token_get("DATABASE_URL"):
     import dj_database_url

@@ -28,8 +28,8 @@ from .models import *
 from .templatetags.extra import get_latest_video
 
 
-@login_required
 @sync_to_async
+@login_required
 @cache_page(60 * 15)
 def user_logout(request):
     logout(request)
@@ -69,8 +69,8 @@ def homeredirect(request):
     return redirect(reverse("Home"))
 
 
-@require_GET
 @sync_to_async
+@require_GET
 @cache_page(60 * 15)
 def schedule(request, year):
     name1 = f"Durga Puja Schedule for {year}"
@@ -92,8 +92,8 @@ def schedule(request, year):
     return render(request, "schedule.html", params)
 
 
-@require_GET
 @sync_to_async
+@require_GET
 @cache_page(60 * 15)
 def scheduleprint(request, year, one: int = None):
     try:
@@ -145,11 +145,9 @@ def schedulepdf(request, year):
                          f"schedulepdf-{year}.pdf"), "rb"
         ) as pdf_file:
             data = pdf_file.read()
-        sync_to_async(
-            os.remove(
-                os.path.join(settings.MEDIA_ROOT, "pdf",
-                             f"schedulepdf-{year}.pdf")
-            )
+        os.remove(
+            os.path.join(settings.MEDIA_ROOT, "pdf",
+                         f"schedulepdf-{year}.pdf")
         )
         filename = f"schedulepdf-{year}.pdf"
         content_type = "application/pdf"
@@ -167,8 +165,7 @@ def schedulepdf(request, year):
             img_file.write(img)
         with open(settings.MEDIA_ROOT / f"schedulepdf-{year}.png", "rb") as img_file:
             data = img_file.read()
-        sync_to_async(os.remove(settings.MEDIA_ROOT /
-                      f"schedulepdf-{year}.png"))
+        os.remove(settings.MEDIA_ROOT / f"schedulepdf-{year}.png")
 
         filename = f"schedulepdf-{year}.png"
         content_type = "image/png"
@@ -178,8 +175,8 @@ def schedulepdf(request, year):
     return response
 
 
-@require_GET
 @sync_to_async
+@require_GET
 def home(request):
 
     name1 = "Videos List"
@@ -218,13 +215,13 @@ def home(request):
     )
 
 
-@require_GET
 @sync_to_async
+@require_GET
 @cache_page(60 * 15)
 def video(request, year, day):
     try:
         yearid = Year.objects.values("id").filter(year=int(year)).get()["id"]
-    except:
+    except Exception:
         raise Http404("The year in our database does not exist!")
 
     day = day.upper()
@@ -311,13 +308,13 @@ def video(request, year, day):
     )
 
 
-@require_GET
 @sync_to_async
+@require_GET
 @cache_page(60 * 15)
 def about_year(request, year):
     try:
         yearid = Year.objects.filter(year=int(year)).get()
-    except:
+    except Exception:
         raise Http404("The year in our database does not exist!")
     img_dir = os.listdir(settings.BASE_DIR /
                          os.path.join("main", "static", "img"))
@@ -359,7 +356,7 @@ def redirect_view_puja(request):
             .values("day")
             .get()
         )
-    except:
+    except Exception:
         videodict = {"day": "None"}
         try:
             videodict = (
@@ -440,7 +437,6 @@ def durgapujayear():
     return relativedelta(datetime.datetime.now(), datetime.datetime(2001, 1, 1)).years
 
 
-@lru_cache
 def generate_thumbnail(request_obj):
     request = request_obj
     if os.path.isdir(os.path.join(settings.MEDIA_ROOT, "yearpic")):
@@ -454,7 +450,9 @@ def generate_thumbnail(request_obj):
 
     img = Image.new("RGBA", (100, 30), color=str(back))
     d = ImageDraw.Draw(img)
-    w, h = d.textsize(str(text))
+    bbox = d.textbbox((0, 0), str(text))
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
 
     if request.LANGUAGE_CODE == "bn" and text.replace("/", "").isdigit():
         font = os.path.join(
@@ -481,7 +479,7 @@ def generate_thumbnail(request_obj):
     output_image1 = output_image
     try:
         img.save(output_image1)
-    except:
+    except Exception:
         os.mkdir(os.path.join(settings.MEDIA_ROOT, "yearpic"))
         img.save(output_image1)
 
@@ -499,6 +497,6 @@ def generate_thumbnail(request_obj):
     with open(main_image, "rb") as image_file:
         image_data = image_file.read()
     # Deleting the first image made
-    sync_to_async(os.remove(output_image1))
-    sync_to_async(os.remove(main_image))
+    os.remove(output_image1)
+    os.remove(main_image)
     return image_data

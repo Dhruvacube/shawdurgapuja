@@ -5,9 +5,6 @@ import os
 import sys
 from pathlib import Path
 
-if sys.platform == "win32" and sys.version_info >= (3, 8, 0):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "puja.settings")
@@ -19,8 +16,6 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    if not os.path.isdir(os.path.join(Path(__file__).resolve().parent)):
-        os.mkdir(os.path.join(Path(__file__).resolve().parent))
     os.environ["ASYNC_RUN"] = "False"
     execute_from_command_line(sys.argv)
 
